@@ -11,7 +11,7 @@ export const fetchElevations = async (
   tileMap: TileMapDict,
   data: LocationData[]
 ) => {
-  const elevations = [];
+  const elevations: number[] = [];
   for (let i = 0; i < data.length; i++) {
     try {
       const elevation = await getElevation(tileMap, data[i].lat, data[i].lon);
