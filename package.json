@@ -1,0 +1,23 @@
+{
+  "name": "gnd-elev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/main.js",
+  "types": "./dist/main.d.ts",
+  "scripts": {
+    "test": "tsc && node dist/test.js",
+    "build": "tsc"
+  },
+  "module": "dist/main.js",
+  "author": "Pedro at Volandoo",
+  "license": "LGPL-2.1-or-later",
+  "devDependencies": {
+    "@types/node": "^20.8.10",
+    "install": "^0.13.0",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "axios": "^1.6.1",
+    "zlib": "^1.0.5"
+  }
+}
