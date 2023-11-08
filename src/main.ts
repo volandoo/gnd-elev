@@ -28,7 +28,7 @@ export const fetchElevationsAsync = async (
   return elevations;
 };
 
-export const fetchElevationsSync = async (
+export const fetchElevationsSync = (
   tileMap: TileMapDict,
   data: LocationData[]
 ) => {
