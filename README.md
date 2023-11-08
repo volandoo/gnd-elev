@@ -9,7 +9,7 @@ npm install --save gnd-elev
 ```
 
 ```ts
-import { fetchElevations, LocationData, TileMapDict } from "gnd-evel";
+import { fetchElevationsAsync, LocationData, TileMapDict } from "gnd-evel";
 
 // make this global for reusability
 const tilesCache: TileMapDict = {};
@@ -37,7 +37,7 @@ const fixes: LocationData[] = [
 ];
 
 (async () => {
-  const gndElevations = await fetchElevations(tilesCache, fixes);
+  const gndElevations = await fetchElevationsAsync(tilesCache, fixes);
   // Order matters, do stuff with it.
 })();
 ```
