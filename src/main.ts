@@ -86,13 +86,17 @@ const fetchTileBufferAsync = async (
   return tileMap[path];
 };
 
+const downloading: { [path: string]: boolean } = {};
 const addToTileMap = async (path: string, tileMap: TileMapDict) => {
+  if (downloading[path]) return;
+  downloading[path] = true;
   const resp = await axios.get(
     `https://elevation-tiles-prod.s3.amazonaws.com/skadi/${path}`,
     {
       responseType: "arraybuffer",
     }
   );
+  downloading[path] = false;
   const buffer = Buffer.from(await promisify(gunzip)(resp.data));
   tileMap[path] = buffer;
 };
