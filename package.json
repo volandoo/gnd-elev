@@ -1,21 +1,28 @@
 {
     "name": "gnd-elev",
-    "version": "1.0.7",
-    "description": "",
-    "main": "./dist/main.js",
-    "types": "./dist/main.d.ts",
+    "version": "1.2.4",
+    "description": "Elevation service for Volandoo",
+    "main": "./dist/ElevationService.js",
+    "types": "./dist/ElevationService.js",
     "scripts": {
-        "build": "tsc"
+        "build": "tsc",
+        "start": "node dist/server.js",
+        "dev": "ts-node src/server.ts"
     },
-    "module": "dist/main.js",
+    "module": "dist/ElevationService.js",
     "author": "Pedro at Volandoo",
     "license": "LGPL-2.1-or-later",
     "devDependencies": {
         "@types/node": "^20.8.10",
+        "@types/express": "^4.17.21",
         "install": "^0.13.0",
-        "typescript": "^5.2.2"
+        "typescript": "^5.2.2",
+        "ts-node": "^10.9.1"
     },
     "dependencies": {
-        "axios": "^1.6.1"
+        "axios": "^1.6.1",
+        "@aws-sdk/client-s3": "^3.0.0",
+        "@aws-sdk/s3-request-presigner": "^3.0.0",
+        "express": "^4.18.2"
     }
 }
