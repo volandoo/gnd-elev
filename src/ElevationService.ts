@@ -1,6 +1,5 @@
-import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import axios from "axios";
-import { gunzipSync } from "zlib";
+import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { gunzipSync } from 'zlib';
 
 const SIZE = 3601;
 
@@ -55,11 +54,11 @@ export class ElevationService {
 
         for (let i = 0; i < data.length; i++) {
             try {
-                const elevation = await this.getElevationAsync(data[i].lat, data[i].lon);
+                const elevation = await this.getElevationAsync(data[i]!.lat, data[i]!.lon);
                 elevations.push(elevation);
             } catch (e) {
                 console.error(e);
-                elevations.push(-1);
+                elevations.push(Number.NEGATIVE_INFINITY);
             }
         }
 
@@ -74,11 +73,11 @@ export class ElevationService {
 
         for (let i = 0; i < data.length; i++) {
             try {
-                const elevation = this.getElevationSync(data[i].lat, data[i].lon);
+                const elevation = this.getElevationSync(data[i]!.lat, data[i]!.lon);
                 elevations.push(elevation);
             } catch (e) {
                 console.error(e);
-                elevations.push(-1);
+                elevations.push(Number.NEGATIVE_INFINITY);
             }
         }
 
@@ -90,6 +89,7 @@ export class ElevationService {
      */
     private async getElevationAsync(lat: number, lon: number): Promise<number> {
         const buffer = await this.fetchTileBufferAsync(Math.floor(lat), Math.floor(lon));
+        if (!buffer) return Number.NEGATIVE_INFINITY;
         return this.calculateElevation(buffer, lat, lon);
     }
 
@@ -173,18 +173,22 @@ export class ElevationService {
         }
 
         // If not found in S3, fall back to AWS elevation tiles
-        const resp = await axios
-            .get(`https://elevation-tiles-prod.s3.amazonaws.com/skadi/${path}`, {
-                responseType: "arraybuffer",
+        const resp = await fetch(`https://elevation-tiles-prod.s3.amazonaws.com/skadi/${path}`)
+            .then(async response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.arrayBuffer();
+                return { data };
             })
-            .catch((e) => {
+            .catch(e => {
                 console.log(`Error fetching tile ${path} from AWS`);
                 console.error(e);
                 return null;
             });
 
         console.log(`Fetched tile ${path} from AWS`);
-        delete this.downloading[path]
+        delete this.downloading[path];
         if (!resp) {
             return;
         }
@@ -196,7 +200,7 @@ export class ElevationService {
 
         // Upload to S3 storage if configured (for future use)
         if (this.s3Client) {
-            await this.uploadTileToS3(path, resp.data);
+            await this.uploadTileToS3(path, Buffer.from(resp.data));
         }
     }
 
@@ -204,8 +208,8 @@ export class ElevationService {
      * Generate tile map path from coordinates
      */
     private tileMapPath(lat: number, lon: number): string {
-        const latFileName = `${lat < 0 ? "S" : "N"}${String(Math.abs(lat)).padStart(2, "0")}`;
-        const lngFileName = `${lon < 0 ? "W" : "E"}${String(Math.abs(lon)).padStart(3, "0")}`;
+        const latFileName = `${lat < 0 ? 'S' : 'N'}${String(Math.abs(lat)).padStart(2, '0')}`;
+        const lngFileName = `${lon < 0 ? 'W' : 'E'}${String(Math.abs(lon)).padStart(3, '0')}`;
         const fileName = `${latFileName}${lngFileName}.hgt.gz`;
         return `${latFileName}/${fileName}`;
     }
@@ -234,10 +238,12 @@ export class ElevationService {
         if (!this.s3Client) return false;
 
         try {
-            await this.s3Client.send(new HeadObjectCommand({
-                Bucket: this.getS3Bucket(),
-                Key: path,
-            }));
+            await this.s3Client.send(
+                new HeadObjectCommand({
+                    Bucket: this.getS3Bucket(),
+                    Key: path,
+                }),
+            );
             return true;
         } catch (error) {
             return false;
@@ -251,10 +257,12 @@ export class ElevationService {
         if (!this.s3Client) return null;
 
         try {
-            const response = await this.s3Client.send(new GetObjectCommand({
-                Bucket: this.getS3Bucket(),
-                Key: path,
-            }));
+            const response = await this.s3Client.send(
+                new GetObjectCommand({
+                    Bucket: this.getS3Bucket(),
+                    Key: path,
+                }),
+            );
 
             if (response.Body) {
                 const chunks: Buffer[] = [];
@@ -277,12 +285,14 @@ export class ElevationService {
         if (!this.s3Client) return;
 
         try {
-            await this.s3Client.send(new PutObjectCommand({
-                Bucket: this.getS3Bucket(),
-                Key: path,
-                Body: buffer,
-                ContentType: 'application/gzip',
-            }));
+            await this.s3Client.send(
+                new PutObjectCommand({
+                    Bucket: this.getS3Bucket(),
+                    Key: path,
+                    Body: buffer,
+                    ContentType: 'application/gzip',
+                }),
+            );
         } catch (error) {
             console.error(`Failed to upload tile to S3: ${path}`, error);
         }
@@ -301,7 +311,7 @@ export class ElevationService {
      */
     private calculateElevation(buffer: Buffer, lat: number, lon: number): number {
         const size = SIZE - 1;
-        const ll = [lat, lon];
+        const ll = [lat, lon] as [number, number];
         const row = (ll[0] - Math.floor(lat)) * size;
         const col = (ll[1] - Math.floor(lon)) * size;
 
@@ -355,13 +365,15 @@ export class ElevationService {
     /**
      * Get cache statistics
      */
-    public getCacheStats(): { tiles: number; downloading: number; timeouts: number } {
+    public getCacheStats(): {
+        tiles: number;
+        downloading: number;
+        timeouts: number;
+    } {
         return {
             tiles: Object.keys(this.tileMap).length,
             downloading: Object.keys(this.downloading).length,
-            timeouts: Object.keys(this.tileTimeouts).length
+            timeouts: Object.keys(this.tileTimeouts).length,
         };
     }
 }
-
-

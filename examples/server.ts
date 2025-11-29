@@ -1,5 +1,5 @@
 import express from 'express';
-import { ElevationService, LocationData } from './ElevationService';
+import { ElevationService, type LocationData } from '../src/ElevationService';
 
 const app = express();
 const PORT = process.env.PORT || 3030;

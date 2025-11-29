@@ -1,15 +1,36 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "target": "es6",
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "outDir": "dist",
-    "resolveJsonModule": true,
-    "declaration": true,
-    "declarationMap": true
-  },
-  "include": ["src/**/*"],
-  "lib": ["es2015"]
+    "compilerOptions": {
+        // Environment setup & latest features
+        "lib": ["ESNext"],
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleDetection": "force",
+
+        // Module resolution
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+
+        // Emit
+        "outDir": "./dist",
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "noEmit": false,
+
+        // Best practices
+        "strict": true,
+        "skipLibCheck": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUncheckedIndexedAccess": true,
+        "noImplicitOverride": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+
+        // Some stricter flags (disabled by default)
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "noPropertyAccessFromIndexSignature": false
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist", "examples"]
 }
