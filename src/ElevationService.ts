@@ -3,9 +3,9 @@ import { gunzipSync } from 'zlib';
 
 const SIZE = 3601;
 
-export type LocationData = { lat: number; lon: number };
+export type LocationData = { lat: number; lon: number; };
 
-type TileMapDict = { [path: string]: Buffer };
+type TileMapDict = { [path: string]: Buffer; };
 
 export interface S3StorageConfig {
     endpoint: string;
@@ -23,8 +23,8 @@ export interface ElevationOptions {
 
 export class ElevationService {
     private tileMap: TileMapDict = {};
-    private downloading: { [path: string]: boolean } = {};
-    private tileTimeouts: { [path: string]: NodeJS.Timeout } = {};
+    private downloading: { [path: string]: boolean; } = {};
+    private tileTimeouts: { [path: string]: NodeJS.Timeout; } = {};
     private s3Client: S3Client | null = null;
     private s3Bucket: string | null = null;
     private ttl: number;
@@ -165,7 +165,8 @@ export class ElevationService {
                 const s3Buffer = await this.getTileFromS3(path);
                 if (s3Buffer) {
                     delete this.downloading[path];
-                    this.tileMap[path] = s3Buffer;
+                    const buffer = Buffer.from(gunzipSync(s3Buffer));
+                    this.tileMap[path] = buffer;
                     this.setTileTimeout(path);
                     return;
                 }

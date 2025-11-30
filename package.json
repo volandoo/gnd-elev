@@ -1,6 +1,6 @@
 {
   "name": "gnd-elev",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Ground elevation service with S3 caching support",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
